@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Webcam CV</title>
+  
+<style>
+
+#videoElem {
+   width:100%;
+}
+
+#canvasElem {
+   width:100%;
+}
+
+#leftdiv{
+   float: left;
+   width: 50%;
+   height: 500px;
+}
+#rightdiv{
+   float: right;
+   width: 50%;
+   height: 500px;
+}
+#bottomdiv{
+   top: 530px;
+   width: 100%;
+}
+
+</style>
+</head>
+  
+<body>
+
+<div id ="leftdiv">
+   <video autoplay="true" id="videoElem"></video>
+</div>
+<div id ="rightdiv">
+   <canvas id ="canvasElem"></canvas>
+</div>
+<div id="bottomdiv">
+   <!-- Number of Fingers: <input type="number" id="numFingers" value="4"><br> -->
+   Color Threshold: <input type="range" id="threshold" min="0" max="20" value="5"><br>
+   <!-- Dilate: <input type="range" id="dilate" min="0" max="10" value="5"><br> -->
+   <!-- Erode: <input type="range" id="erode" min="0" max="10" value="5"><br>    -->
+   <button onclick="captureTargetHue()">Capture Target Hue</button>
+   <button onclick="captureFingers()">Capture Fingers</button>   
+</div>
+
+<script type="text/javascript" src="color-conversion.js"></script>
+<script type="text/javascript" src="filter-color.js"></script>
+<script type="text/javascript" src="cv.js"></script> 
+<script type="text/javascript" src="handtracking.js"></script> 
+<script>
+   //this script grabs a video stream from the users webcam
+   //when the user clicks "Capture Background" the background_deletion.js script is called
+
+   var video = document.getElementById("videoElem");
+   var canvas = document.getElementById("canvasElem");
+   var context = canvas.getContext("2d");
+   var back = document.createElement("canvas");
+   var backContext = back.getContext("2d");
+   var thresholdSlider = document.getElementById("threshold");
+   // var dilateSlider = document.getElementById("dilate");
+   // var erodeSlider = document.getElementById("erode");
+   // var numFingersInput = document.getElementById("numFingers");
+
+   var tracker = new HT.Tracker();
+   var candidate;
+   var contours = [];
+   // var hull = [];
+   // var defects = [];
+
+   var shortimg = new CV.Image();
+
+   var ch, cw;
+
+   window.onload = getVid;
+
+   function getVid() {
+
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
+                            || navigator.mozGetUserMedia || navigator.msGetUserMedia 
+                            || navigator.oGetUserMedia;
+       
+      if (navigator.getUserMedia) {       
+         navigator.getUserMedia({video: true}, handleVideo, videoError);
+      }
+   }
+    
+   function handleVideo(stream) {
+      video.src = window.URL.createObjectURL(stream);
+      
+      var rightDiv = document.getElementById("rightdiv")
+      cw = rightDiv.offsetWidth;
+      ch = rightDiv.offsetHeight;
+      canvas.width = cw;
+      canvas.height = ch;
+      back.width = cw;
+      back.height = ch;
+      shortimg.height = ch;
+      shortimg.width = cw;
+
+   }
+    
+   function videoError(e) {
+      alert("Could not initialize camera. :(");
+   }
+
+
+</script>
+</body>
+</html>
